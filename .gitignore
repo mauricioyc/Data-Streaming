@@ -1,0 +1,13 @@
+.vscode
+env_labs
+*pycache*
+*__pycache__*
+*.egg
+*.ipynb_checkpoints
+*.cfg
+teste*.ipynb
+*.json
+*.gz
+1 Optimizing Public Transportations with Kafka/producers/venv
+1 Optimizing Public Transportations with Kafka/consumers/env_consumer
+starter.zip
