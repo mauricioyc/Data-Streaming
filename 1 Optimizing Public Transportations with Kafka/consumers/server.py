@@ -1,4 +1,5 @@
 """Defines a Tornado Server that consumes Kafka Event data for display"""
+import asyncio
 import logging
 import logging.config
 from pathlib import Path
@@ -7,14 +8,14 @@ import tornado.ioloop
 import tornado.template
 import tornado.web
 
+import topic_check
+from consumer import KafkaConsumer
+from models import Lines, Weather
+
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 # Import logging before models to ensure configuration is picked up
 logging.config.fileConfig(f"{Path(__file__).parents[0]}/logging.ini")
-
-
-from consumer import KafkaConsumer
-from models import Lines, Weather
-import topic_check
 
 
 logger = logging.getLogger(__name__)
@@ -23,7 +24,8 @@ logger = logging.getLogger(__name__)
 class MainHandler(tornado.web.RequestHandler):
     """Defines a web request handler class"""
 
-    template_dir = tornado.template.Loader(f"{Path(__file__).parents[0]}/templates")
+    template_dir = tornado.template.Loader(
+        f"{Path(__file__).parents[0]}/templates")
     template = template_dir.load("status.html")
 
     def initialize(self, weather, lines):
@@ -34,8 +36,12 @@ class MainHandler(tornado.web.RequestHandler):
     def get(self):
         """Responds to get requests"""
         logging.debug("rendering and writing handler template")
+        station = [x for x in self.lines.blue_line.stations.values()][0]
+        logging.debug(
+            f"{station.station_name} E {station.num_turnstile_entries}")
         self.write(
-            MainHandler.template.generate(weather=self.weather, lines=self.lines)
+            MainHandler.template.generate(
+                weather=self.weather, lines=self.lines)
         )
 
 
@@ -46,7 +52,7 @@ def run_server():
             "Ensure that the KSQL Command has run successfully before running the web server!"
         )
         exit(1)
-    if topic_check.topic_exists("org.chicago.cta.stations.table.v1") is False:
+    if topic_check.topic_exists("faust_stations_transformed") is False:
         logger.fatal(
             "Ensure that Faust Streaming is running successfully before running the web server!"
         )
@@ -58,23 +64,25 @@ def run_server():
     application = tornado.web.Application(
         [(r"/", MainHandler, {"weather": weather_model, "lines": lines})]
     )
+
     application.listen(8888)
 
     # Build kafka consumers
     consumers = [
         KafkaConsumer(
-            "org.chicago.cta.weather.v1",
+            "weather_info",
             weather_model.process_message,
             offset_earliest=True,
+            is_avro=False,
         ),
         KafkaConsumer(
-            "org.chicago.cta.stations.table.v1",
+            "faust_stations_transformed",
             lines.process_message,
             offset_earliest=True,
             is_avro=False,
         ),
         KafkaConsumer(
-            "^org.chicago.cta.station.arrivals.",
+            "^.*arrival-info",
             lines.process_message,
             offset_earliest=True,
         ),

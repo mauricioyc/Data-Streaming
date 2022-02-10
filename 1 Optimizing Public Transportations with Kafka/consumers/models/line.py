@@ -4,7 +4,6 @@ import logging
 
 from models import Station
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -39,7 +38,8 @@ class Line:
             if prev_station is not None:
                 prev_station.handle_departure(prev_dir)
             else:
-                logger.debug("unable to handle previous station due to missing station")
+                logger.debug(
+                    "unable to handle previous station due to missing station")
         else:
             logger.debug(
                 "unable to handle previous station due to missing previous info"
@@ -51,21 +51,25 @@ class Line:
             logger.debug("unable to handle message due to missing station")
             return
         station.handle_arrival(
-            value.get("direction"), value.get("train_id"), value.get("train_status")
+            value.get("direction"), value.get(
+                "train_id"), value.get("train_status")
         )
 
     def process_message(self, message):
         """Given a kafka message, extract data"""
-        # TODO: Based on the message topic, call the appropriate handler.
-        if True: # Set the conditional correctly to the stations Faust Table
+
+        topic = message.topic()
+        if topic == "faust_stations_transformed":
             try:
                 value = json.loads(message.value())
                 self._handle_station(value)
-            except Exception as e:
-                logger.fatal("bad station? %s, %s", value, e)
-        elif True: # Set the conditional to the arrival topic
+            except Exception as error_info:
+                logger.fatal("bad station? %s, %s", value, error_info)
+
+        elif topic.split('_')[-1] == "arrival-info":
             self._handle_arrival(message)
-        elif True: # Set the conditional to the KSQL Turnstile Summary Topic
+
+        elif topic.lower() == "turnstile_summary":
             json_data = json.loads(message.value())
             station_id = json_data.get("STATION_ID")
             station = self.stations.get(station_id)
@@ -73,6 +77,7 @@ class Line:
                 logger.debug("unable to handle message due to missing station")
                 return
             station.process_message(json_data)
+
         else:
             logger.debug(
                 "unable to find handler for message from topic %s", message.topic

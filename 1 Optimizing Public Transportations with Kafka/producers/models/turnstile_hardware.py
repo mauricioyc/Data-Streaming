@@ -1,17 +1,18 @@
 import logging
 import math
-from pathlib import Path
 import random
+from pathlib import Path
 
 import pandas as pd
 
 from models.producer import Producer
 
-
 logger = logging.getLogger(__name__)
 
 
 class TurnstileHardware:
+    """Creates turnstile data."""
+
     curve_df = None
     seed_df = None
 

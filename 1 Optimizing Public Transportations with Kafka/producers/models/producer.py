@@ -9,7 +9,7 @@ from confluent_kafka.avro import AvroProducer
 logger = logging.getLogger(__name__)
 
 BROKER_URL = "PLAINTEXT://localhost:9092"
-SCHEMA_REGISTRY_URL = "	http://localhost:8081"
+SCHEMA_REGISTRY_URL = "http://localhost:8081"
 
 
 class Producer:
@@ -33,12 +33,6 @@ class Producer:
         self.num_partitions = num_partitions
         self.num_replicas = num_replicas
 
-        #
-        #
-        # TODO: Configure the broker properties below. Make sure to reference the project README
-        # and use the Host URL for Kafka and Schema Registry!
-        #
-        #
         self.broker_properties = {
             "bootstrap.servers": BROKER_URL,
             "schema.registry.url": SCHEMA_REGISTRY_URL,
@@ -50,18 +44,14 @@ class Producer:
             Producer.existing_topics.add(self.topic_name)
 
         # TODO: Configure the AvroProducer
+        logger.info("Creating producer...")
         self.producer = AvroProducer(self.broker_properties,
                                      default_key_schema=self.key_schema,
                                      default_value_schema=self.value_schema)
 
     def create_topic(self):
         """Creates the producer topic if it does not already exist"""
-        #
-        #
-        # TODO: Write code that creates the topic for this producer if it does not already exist on
-        # the Kafka Broker.
-        #
-        #
+
         client = AdminClient(
             {"bootstrap.servers":
                 self.broker_properties.get("bootstrap.servers")})
@@ -91,10 +81,6 @@ class Producer:
 
     def close(self):
         """Prepares the producer for exit by cleaning up the producer"""
-        #
-        #
-        # TODO: Write cleanup code for the Producer here
-        #
-        #
+
         self.producer.flush()
         self.producer.close()

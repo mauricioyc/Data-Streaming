@@ -4,7 +4,6 @@ import logging
 
 from models import Line
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -19,9 +18,11 @@ class Lines:
 
     def process_message(self, message):
         """Processes a station message"""
-        if "org.chicago.cta.station" in message.topic():
+
+        topic_name = message.topic()
+        if ("faust_stations" in topic_name) or ("arrival-info" in topic_name):
             value = message.value()
-            if message.topic() == "org.chicago.cta.stations.table.v1":
+            if message.topic() == "faust_stations_transformed":
                 value = json.loads(value)
             if value["line"] == "green":
                 self.green_line.process_message(message)
@@ -31,7 +32,7 @@ class Lines:
                 self.blue_line.process_message(message)
             else:
                 logger.debug("discarding unknown line msg %s", value["line"])
-        elif "TURNSTILE_SUMMARY" == message.topic():
+        elif ("TURNSTILE_SUMMARY" == topic_name):
             self.green_line.process_message(message)
             self.red_line.process_message(message)
             self.blue_line.process_message(message)
