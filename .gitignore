@@ -6,7 +6,6 @@ env_labs
 *.ipynb_checkpoints
 *.cfg
 teste*.ipynb
-*.json
 *.gz
 1 Optimizing Public Transportations with Kafka/producers/venv
 1 Optimizing Public Transportations with Kafka/consumers/env_consumer

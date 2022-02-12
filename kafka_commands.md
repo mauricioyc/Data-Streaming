@@ -11,4 +11,9 @@
 - Alter Topic Partitions: ```kafka-topics --alter --topic kafka-arch --partitions 3 --zookeeper localhost:2181```
 
 
-```kafka-console-consumer --bootstrap-server localhost:9092 --topic "com.udacity.streams.clickevents.scored"```
+docker-compose exec zookeeper kafka-topics --list --zookeeper localhost:2181
+docker-compose exec zookeeper kafka-topics --zookeeper localhost:2181 --delete --topic 'weather_info'
+docker-compose exec kafka0 kafka-console-consumer --topic "weather_info" --bootstrap-server PLAINTEXT://localhost:9092 --from-beginning
+
+docker-compose exec kafka0 kafka-consumer-groups --bootstrap-server localhost:9092 --group "group_turnstile_summary" --describe
+docker-compose exec kafka0 kafka-consumer-groups --bootstrap-server localhost:9092 --delete --group "group_turnstile_summary"
