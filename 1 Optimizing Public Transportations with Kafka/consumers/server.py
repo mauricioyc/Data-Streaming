@@ -73,7 +73,6 @@ def run_server():
             "weather_info",
             weather_model.process_message,
             offset_earliest=True,
-            is_avro=False,
         ),
         KafkaConsumer(
             "faust_stations_transformed",

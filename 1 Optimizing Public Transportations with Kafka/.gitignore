@@ -1,0 +1,12 @@
+.vscode
+env_labs
+*pycache*
+*__pycache__*
+*.egg
+*.ipynb_checkpoints
+*.cfg
+teste*.ipynb
+*.gz
+producers/venv
+consumers/env_consumer
+starter.zip

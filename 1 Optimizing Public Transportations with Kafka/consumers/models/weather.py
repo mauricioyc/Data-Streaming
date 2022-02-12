@@ -16,9 +16,8 @@ class Weather:
     def process_message(self, message):
         """Handles incoming weather data"""
         try:
-            value = json.loads(message.value())
+            value = message.value()
             self.temperature = value["temperature"]
             self.status = value["status"]
-            logger.debug(value)
         except Exception as error_info:
             logger.error("Error while handling weather message %s", error_info)

@@ -56,14 +56,7 @@ async def transform_stations(station_events):
     """Transform stations event into table."""
 
     async for station_event in station_events:
-        if station_event.red:
-            line = 'red'
-        elif station_event.blue:
-            line = 'blue'
-        elif station_event.green:
-            line = 'green'
-        else:
-            line = 'other'
+        line = "red" if station_event.red else "blue" if station_event.blue else "green"
 
         table[station_event.station_id] = TransformedStation(
             station_id=station_event.station_id,
