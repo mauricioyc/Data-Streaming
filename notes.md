@@ -252,3 +252,5 @@ Data streams are highly dynamic, making analytics on streams harder. A company m
     - Hopping Window: window with duration and increment. It is possible to have gaps or overlapping.
     - Sliding Window: similar to hopping windows that increments in real time without gap.
 
+# Streaming API Development and Documentation
+
